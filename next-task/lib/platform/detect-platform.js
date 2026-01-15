@@ -11,8 +11,12 @@
  */
 
 const fs = require('fs');
-const path = require('path');
 const { execSync } = require('child_process');
+
+// Detection cache for performance (platform rarely changes during session)
+let _cachedDetection = null;
+let _cacheExpiry = 0;
+const CACHE_TTL_MS = 60000; // 1 minute cache
 
 /**
  * Detects CI platform by scanning for configuration files
@@ -137,10 +141,19 @@ function detectMainBranch() {
 
 /**
  * Main detection function - aggregates all platform information
+ * Uses caching to avoid repeated filesystem/git operations
+ * @param {boolean} forceRefresh - Force cache refresh
  * @returns {Object} Platform configuration object
  */
-function detect() {
-  return {
+function detect(forceRefresh = false) {
+  const now = Date.now();
+  
+  // Return cached result if still valid
+  if (!forceRefresh && _cachedDetection && now < _cacheExpiry) {
+    return _cachedDetection;
+  }
+  
+  _cachedDetection = {
     ci: detectCI(),
     deployment: detectDeployment(),
     projectType: detectProjectType(),
@@ -149,8 +162,20 @@ function detect() {
     mainBranch: detectMainBranch(),
     hasPlanFile: fs.existsSync('PLAN.md'),
     hasTechDebtFile: fs.existsSync('TECHNICAL_DEBT.md'),
-    timestamp: new Date().toISOString()
+    timestamp: new Date(now).toISOString()
   };
+  _cacheExpiry = now + CACHE_TTL_MS;
+  
+  return _cachedDetection;
+}
+
+/**
+ * Invalidate the detection cache
+ * Call this after making changes that affect platform detection
+ */
+function invalidateCache() {
+  _cachedDetection = null;
+  _cacheExpiry = 0;
 }
 
 // When run directly, output JSON
@@ -170,6 +195,7 @@ if (require.main === module) {
 // Export for use as module
 module.exports = {
   detect,
+  invalidateCache,
   detectCI,
   detectDeployment,
   detectProjectType,

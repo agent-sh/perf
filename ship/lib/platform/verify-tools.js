@@ -10,20 +10,53 @@
  * @license MIT
  */
 
-const { execSync } = require('child_process');
+const { execFileSync, spawnSync } = require('child_process');
+
+// Detect Windows platform
+const isWindows = process.platform === 'win32';
 
 /**
  * Checks if a tool is available and returns its version
+ * Uses safe execution methods to avoid shell injection vulnerabilities
  * @param {string} command - Command to check (e.g., 'git', 'node')
  * @param {string} versionFlag - Flag to get version (default: '--version')
  * @returns {Object} { available: boolean, version: string|null }
  */
 function checkTool(command, versionFlag = '--version') {
+  // Validate command contains only safe characters (alphanumeric, underscore, hyphen)
+  if (!/^[a-zA-Z0-9_-]+$/.test(command)) {
+    return { available: false, version: null };
+  }
+  // Validate versionFlag contains only safe characters
+  if (!/^[a-zA-Z0-9_-]+$/.test(versionFlag)) {
+    return { available: false, version: null };
+  }
+  
   try {
-    const output = execSync(`${command} ${versionFlag}`, {
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'ignore']
-    }).trim();
+    let output;
+    
+    if (isWindows) {
+      // On Windows, use spawnSync with shell to handle .cmd/.bat scripts
+      // Input is validated above so this is safe
+      const result = spawnSync(command, [versionFlag], {
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'ignore'],
+        timeout: 5000,
+        windowsHide: true,
+        shell: true
+      });
+      if (result.error || result.status !== 0) {
+        return { available: false, version: null };
+      }
+      output = (result.stdout || '').trim();
+    } else {
+      // On Unix, use execFileSync (more secure, no shell)
+      output = execFileSync(command, [versionFlag], {
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'ignore'],
+        timeout: 5000
+      }).trim();
+    }
 
     // Extract version from first line
     const version = output.split('\n')[0];

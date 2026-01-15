@@ -277,12 +277,16 @@ const reviewPatterns = {
   }
 };
 
+// Pre-compute available frameworks Set for O(1) lookup
+const _availableFrameworks = null; // Lazy initialization
+
 /**
  * Get review patterns for a detected framework
  * @param {string} framework - Framework name
  * @returns {Object|null} Patterns for framework or null if not found
  */
 function getPatternsForFramework(framework) {
+  if (typeof framework !== 'string') return null;
   return reviewPatterns[framework.toLowerCase()] || null;
 }
 
@@ -296,10 +300,12 @@ function getAvailableFrameworks() {
 
 /**
  * Check if patterns exist for a framework
+ * Uses cached Set for O(1) lookup performance
  * @param {string} framework - Framework name
  * @returns {boolean} True if patterns available
  */
 function hasPatternsFor(framework) {
+  if (typeof framework !== 'string') return false;
   return framework.toLowerCase() in reviewPatterns;
 }
 

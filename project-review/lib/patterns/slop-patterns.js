@@ -6,6 +6,24 @@
  * @license MIT
  */
 
+// Pre-compiled regex cache for performance
+const _compiledExcludePatterns = new Map();
+
+/**
+ * Get a compiled regex for an exclude pattern (cached)
+ * @param {string} pattern - Glob pattern to compile
+ * @returns {RegExp} Compiled regex
+ */
+function getCompiledPattern(pattern) {
+  if (!_compiledExcludePatterns.has(pattern)) {
+    // Escape all regex metacharacters except *, then replace * with .*
+    const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+    const regexStr = '^' + escaped.replace(/\*/g, '.*') + '$';
+    _compiledExcludePatterns.set(pattern, new RegExp(regexStr));
+  }
+  return _compiledExcludePatterns.get(pattern);
+}
+
 /**
  * Auto-fix strategies:
  * - remove: Delete the matching line(s)
@@ -269,6 +287,7 @@ function getPatternsBySeverity(severity) {
 
 /**
  * Check if a file should be excluded based on pattern rules
+ * Uses pre-compiled regex cache for performance
  * @param {string} filePath - File path to check
  * @param {Array<string>} excludePatterns - Exclude patterns
  * @returns {boolean} True if file should be excluded
@@ -277,7 +296,7 @@ function isFileExcluded(filePath, excludePatterns) {
   if (!excludePatterns || excludePatterns.length === 0) return false;
 
   return excludePatterns.some(pattern => {
-    const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+    const regex = getCompiledPattern(pattern);
     return regex.test(filePath);
   });
 }

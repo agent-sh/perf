@@ -9,6 +9,38 @@
  */
 
 /**
+ * Escape shell special characters for safe command interpolation
+ * @param {string} str - String to escape
+ * @returns {string} Escaped string safe for shell use
+ */
+function escapeShell(str) {
+  if (typeof str !== 'string') return '';
+  // Escape characters that have special meaning in shell
+  return str.replace(/["$`\\!]/g, '\\$&');
+}
+
+/**
+ * Escape single quotes for shell (replace ' with '\''
+ * @param {string} str - String to escape
+ * @returns {string} Escaped string safe for single-quoted shell use
+ */
+function escapeSingleQuotes(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/'/g, "'\\''");
+}
+
+/**
+ * Validate and sanitize file extension
+ * @param {string} ext - Extension to validate
+ * @returns {string} Safe extension (alphanumeric only)
+ */
+function sanitizeExtension(ext) {
+  if (typeof ext !== 'string') return 'ts';
+  const safe = ext.replace(/[^a-zA-Z0-9]/g, '');
+  return safe || 'ts';
+}
+
+/**
  * Git command optimization utilities for context efficiency
  */
 const contextOptimizer = {
@@ -69,16 +101,26 @@ const contextOptimizer = {
    * @param {number} line - Line number
    * @returns {string} Git command
    */
-  lineAge: (file, line) =>
-    `git blame -L ${line},${line} ${file} --porcelain | grep '^committer-time' | cut -d' ' -f2`,
+  lineAge: (file, line) => {
+    // Validate line is a positive integer
+    const lineNum = parseInt(line, 10);
+    if (!Number.isInteger(lineNum) || lineNum < 1) {
+      throw new Error('Line must be a positive integer');
+    }
+    // Escape file path for safe shell usage
+    const safeFile = escapeShell(file);
+    return `git blame -L ${lineNum},${lineNum} "${safeFile}" --porcelain | grep '^committer-time' | cut -d' ' -f2`;
+  },
 
   /**
    * Find source files by extension
    * @param {string} extension - File extension (e.g., 'ts', 'py', 'rs')
    * @returns {string} Git command
    */
-  findSourceFiles: (extension = 'ts') =>
-    `git ls-files | grep '\\.${extension}$'`,
+  findSourceFiles: (extension = 'ts') => {
+    const safeExt = sanitizeExtension(extension);
+    return `git ls-files | grep '\\.${safeExt}$'`;
+  },
 
   /**
    * Get diff stat summary
@@ -161,16 +203,20 @@ const contextOptimizer = {
    * @param {string} author - Author name or email
    * @returns {string} Git command
    */
-  authorCommitCount: (author) =>
-    `git log --author="${author}" --oneline | wc -l`,
+  authorCommitCount: (author) => {
+    const safeAuthor = escapeShell(author);
+    return `git log --author="${safeAuthor}" --oneline | wc -l`;
+  },
 
   /**
    * Check if file exists in repository
    * @param {string} file - File path
    * @returns {string} Git command
    */
-  fileExists: (file) =>
-    `git ls-files | grep -q '${file}' && echo 'true' || echo 'false'`
+  fileExists: (file) => {
+    const safeFile = escapeSingleQuotes(file);
+    return `git ls-files | grep -q '${safeFile}' && echo 'true' || echo 'false'`;
+  }
 };
 
 module.exports = contextOptimizer;
