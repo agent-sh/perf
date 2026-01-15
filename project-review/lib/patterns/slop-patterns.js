@@ -233,15 +233,173 @@ const slopPatterns = {
   },
 
   /**
-   * Hardcoded credentials patterns
+   * Hardcoded credentials patterns (expanded for comprehensive detection)
    */
   hardcoded_secrets: {
-    pattern: /(password|secret|api[_-]?key|token)\s*=\s*["'][^"']{8,}["']/i,
-    exclude: ['*.test.*', '*.example.*', 'README.*'],
+    pattern: /(password|secret|api[_-]?key|token|credential|auth)[_-]?(key|token|secret|pass)?\s*[:=]\s*["'`][^"'`\s]{8,}["'`]/i,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*', '*.sample.*', 'README.*', '*.md'],
     severity: 'critical',
     autoFix: 'flag',
     language: null,
     description: 'Potential hardcoded credentials'
+  },
+
+  /**
+   * JWT tokens (eyJ prefix indicates base64 JSON header)
+   */
+  jwt_tokens: {
+    pattern: /eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Hardcoded JWT token'
+  },
+
+  /**
+   * OpenAI API keys (sk-... format)
+   */
+  openai_api_key: {
+    pattern: /sk-[a-zA-Z0-9]{32,}/,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Hardcoded OpenAI API key'
+  },
+
+  /**
+   * GitHub tokens (personal access tokens, fine-grained tokens, OAuth)
+   */
+  github_token: {
+    pattern: /(ghp_[a-zA-Z0-9]{36}|gho_[a-zA-Z0-9]{36}|ghu_[a-zA-Z0-9]{36}|ghs_[a-zA-Z0-9]{36}|ghr_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59})/,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Hardcoded GitHub token'
+  },
+
+  /**
+   * AWS credentials (access key IDs and secret keys)
+   */
+  aws_credentials: {
+    pattern: /(AKIA[0-9A-Z]{16}|aws_secret_access_key\s*[:=]\s*["'`][A-Za-z0-9/+=]{40}["'`])/i,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Hardcoded AWS credentials'
+  },
+
+  /**
+   * Google Cloud / Firebase API keys and service accounts
+   */
+  google_api_key: {
+    pattern: /(AIza[0-9A-Za-z_-]{35}|[0-9]+-[a-z0-9_]{32}\.apps\.googleusercontent\.com)/,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Hardcoded Google/Firebase API key'
+  },
+
+  /**
+   * Stripe API keys (live and test)
+   */
+  stripe_api_key: {
+    pattern: /(sk_live_[a-zA-Z0-9]{24,}|sk_test_[a-zA-Z0-9]{24,}|rk_live_[a-zA-Z0-9]{24,}|rk_test_[a-zA-Z0-9]{24,})/,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Hardcoded Stripe API key'
+  },
+
+  /**
+   * Slack tokens (bot, user, webhook)
+   */
+  slack_token: {
+    pattern: /(xoxb-[0-9]{10,}-[0-9]{10,}-[a-zA-Z0-9]{24}|xoxp-[0-9]{10,}-[0-9]{10,}-[a-zA-Z0-9]{24}|xoxa-[0-9]{10,}-[a-zA-Z0-9]{24}|https:\/\/hooks\.slack\.com\/services\/T[A-Z0-9]{8}\/B[A-Z0-9]{8,}\/[a-zA-Z0-9]{24})/,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Hardcoded Slack token or webhook URL'
+  },
+
+  /**
+   * Discord tokens and webhook URLs
+   */
+  discord_token: {
+    pattern: /(discord.*["'`][A-Za-z0-9_-]{24}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27}["'`]|https:\/\/discord(?:app)?\.com\/api\/webhooks\/[0-9]+\/[A-Za-z0-9_-]+)/i,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Hardcoded Discord token or webhook'
+  },
+
+  /**
+   * SendGrid API key
+   */
+  sendgrid_api_key: {
+    pattern: /SG\.[a-zA-Z0-9_-]{22}\.[a-zA-Z0-9_-]{43}/,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Hardcoded SendGrid API key'
+  },
+
+  /**
+   * Twilio credentials
+   */
+  twilio_credentials: {
+    pattern: /(AC[a-f0-9]{32}|SK[a-f0-9]{32})/,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Hardcoded Twilio credentials'
+  },
+
+  /**
+   * NPM tokens
+   */
+  npm_token: {
+    pattern: /npm_[a-zA-Z0-9]{36}/,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Hardcoded NPM token'
+  },
+
+  /**
+   * Private keys (RSA, DSA, EC, PGP)
+   */
+  private_key: {
+    pattern: /-----BEGIN\s+(RSA\s+)?PRIVATE\s+KEY-----/,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*', '*.pem.example'],
+    severity: 'critical',
+    autoFix: 'flag',
+    language: null,
+    description: 'Private key in source code'
+  },
+
+  /**
+   * Generic high-entropy strings (potential secrets)
+   */
+  high_entropy_string: {
+    pattern: /["'`][A-Za-z0-9+/=_-]{40,}["'`]/,
+    exclude: ['*.test.*', '*.spec.*', '*.example.*', '*.lock', 'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml'],
+    severity: 'medium',
+    autoFix: 'flag',
+    language: null,
+    description: 'High-entropy string that may be a secret',
+    requiresEntropyCheck: true,
+    entropyThreshold: 4.5
   },
 
   /**

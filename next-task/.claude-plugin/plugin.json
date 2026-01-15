@@ -16,5 +16,13 @@
     "prioritization",
     "github-issues",
     "linear"
+  ],
+  "sharedLib": {
+    "path": "lib",
+    "source": "../../lib"
+  },
+  "requires": [
+    "lib/platform/detect-platform.js",
+    "lib/platform/verify-tools.js"
   ]
 }

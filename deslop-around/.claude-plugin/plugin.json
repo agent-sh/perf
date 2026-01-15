@@ -16,5 +16,15 @@
     "refactoring",
     "maintenance",
     "slop-detection"
+  ],
+  "sharedLib": {
+    "path": "lib",
+    "source": "../../lib"
+  },
+  "requires": [
+    "lib/platform/detect-platform.js",
+    "lib/platform/verify-tools.js",
+    "lib/patterns/slop-patterns.js",
+    "lib/utils/context-optimizer.js"
   ]
 }
