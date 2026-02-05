@@ -86,7 +86,7 @@ Hooks fire in this sequence:
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/format-code.sh"
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/format-code.sh"
           }
         ]
       }

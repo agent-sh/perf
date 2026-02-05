@@ -129,7 +129,7 @@ No issues found in agent configurations.
 ## Error Handling
 
 - **agnix not installed**: Show install command `cargo install agnix-cli`
-- **Invalid path**: Exit with "Path not found: <path>"
+- **Invalid path**: Exit with "Path not found: [path]"
 - **Parse errors**: Show raw agnix output
 
 ## Links
