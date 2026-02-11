@@ -1,7 +1,7 @@
 ---
 name: enhance-skills
 description: "Use when reviewing SKILL.md files for structure and trigger quality."
-version: 4.2.0
+version: 4.2.1
 argument-hint: "[path] [--fix]"
 ---
 

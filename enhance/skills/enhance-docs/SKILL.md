@@ -1,7 +1,7 @@
 ---
 name: enhance-docs
 description: "Use when improving documentation structure, accuracy, and RAG readiness."
-version: 4.2.0
+version: 4.2.1
 argument-hint: "[path] [--fix] [--ai]"
 ---
 
