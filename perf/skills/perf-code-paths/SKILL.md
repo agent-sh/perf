@@ -1,7 +1,7 @@
 ---
 name: perf-code-paths
 description: "Use when mapping code paths, entrypoints, and likely hot files before profiling."
-version: 5.0.3
+version: 5.1.0
 ---
 
 # perf-code-paths

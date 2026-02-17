@@ -1,7 +1,7 @@
 ---
 name: perf-investigation-logger
 description: "Use when appending structured perf investigation notes and evidence."
-version: 5.0.3
+version: 5.1.0
 ---
 
 # perf-investigation-logger

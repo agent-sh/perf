@@ -1,7 +1,7 @@
 ---
 name: perf-analyzer
 description: "Use when synthesizing perf findings into evidence-backed recommendations and decisions."
-version: 5.0.3
+version: 5.1.0
 ---
 
 # perf-analyzer

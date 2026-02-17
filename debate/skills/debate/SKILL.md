@@ -1,7 +1,7 @@
 ---
 name: debate
 description: "Structured AI debate templates and synthesis. Use when orchestrating multi-round debates between AI tools, 'debate topic', 'argue about', 'stress test idea', 'devil advocate'."
-version: 5.0.3
+version: 5.1.0
 argument-hint: "[topic] [--proposer=tool] [--challenger=tool] [--rounds=N] [--effort=level]"
 ---
 

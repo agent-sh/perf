@@ -1,7 +1,7 @@
 ---
 name: sync-docs
 description: "Sync documentation with code. Use when user asks to update docs, check docs, fix stale documentation, update changelog, or after code changes."
-version: 5.0.3
+version: 5.1.0
 argument-hint: "[report|apply] [--scope=all|recent|before-pr] [--include-undocumented]"
 allowed-tools: Bash(git:*), Read, Grep, Glob
 ---

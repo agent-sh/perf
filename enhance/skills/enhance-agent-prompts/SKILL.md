@@ -1,7 +1,7 @@
 ---
 name: enhance-agent-prompts
 description: "Use when improving agent prompts, frontmatter, and tool restrictions."
-version: 5.0.3
+version: 5.1.0
 argument-hint: "[path] [--fix] [--verbose]"
 ---
 
