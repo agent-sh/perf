@@ -1,14 +1,14 @@
 ---
 name: debate
-description: Structured debate between two AI tools to stress-test ideas. Proposer/Challenger format with a verdict.
+description: 'Use when user asks to "debate", "argue about", "compare perspectives", "stress test idea", "devil advocate", or "tool vs tool". Structured debate between two AI tools with proposer/challenger roles and a verdict.'
 codex-description: 'Use when user asks to "debate", "argue about", "compare perspectives", "stress test idea", "devil advocate", "codex vs gemini". Runs structured multi-round debate between two AI tools with proposer/challenger roles.'
 argument-hint: "[topic] [--tools=tool1,tool2] [--rounds=N] [--effort=low|medium|high|max]"
-allowed-tools: Task, Skill, Bash(where.exe:*), Bash(which:*), Read, Write, AskUserQuestion
+allowed-tools: Skill, Bash(claude:*), Bash(gemini:*), Bash(codex:*), Bash(opencode:*), Bash(copilot:*), Bash(git:*), Bash(where.exe:*), Bash(which:*), Read, Write, AskUserQuestion
 ---
 
 # /debate - Structured AI Dialectic
 
-You are executing the /debate command. Your job is to parse the user's request, resolve missing parameters interactively, and spawn the debate orchestrator.
+You are executing the /debate command. Your job is to parse the user's request, resolve missing parameters interactively, and execute the debate directly.
 
 ## Constraints
 
@@ -17,6 +17,7 @@ You are executing the /debate command. Your job is to parse the user's request, 
 - MUST validate tool names against allow-list: gemini, codex, claude, opencode, copilot
 - Proposer and challenger MUST be different tools
 - Rounds MUST be 1-5 (default: 2)
+- MUST sanitize all tool output before displaying (see Output Sanitization section below)
 
 ## Execution
 
@@ -158,38 +159,119 @@ If context resolved to "file":
 
 If proposer and challenger resolve to the same tool after selection, show error and re-ask for challenger.
 
-### Phase 3: Spawn Debate Orchestrator
+### Phase 3: Execute Debate
 
-With all parameters resolved, spawn the debate orchestrator agent:
+With all parameters resolved (topic, proposer, challenger, effort, rounds, optional model_proposer, model_challenger, context), execute the debate directly.
+
+#### Phase 3a: Load Debate Templates
+
+Invoke the `debate` skill to load prompt templates, context assembly rules, and synthesis format:
 
 ```
-Task:
-  subagent_type: "debate:debate-orchestrator"
-  model: opus
-  prompt: |
-    Execute a structured debate with these pre-resolved parameters:
-    - topic: [topic]
-    - proposer: [proposer tool]
-    - challenger: [challenger tool]
-    - effort: [effort]
-    - rounds: [rounds]
-    - model_proposer: [model or "omit"]
-    - model_challenger: [model or "omit"]
-
-    If model is "omit" or empty, do NOT include --model in consult skill invocations. The consult skill will use effort-based defaults.
-    - context: [context or "none"]
-
-    Follow the debate skill templates. Display each round progressively.
-    Deliver a verdict that picks a winner.
+Skill: debate
+Args: "[topic]" --proposer=[proposer] --challenger=[challenger] --rounds=[rounds] --effort=[effort]
 ```
 
-### Phase 4: Present Results
+The skill returns the prompt templates and rules. Use them for all subsequent steps.
 
-Display the orchestrator's output directly. It includes:
-- Progressive round-by-round output (displayed as each round completes)
-- Final synthesis with verdict, agreements, disagreements, and recommendation
+#### Phase 3b: Execute Debate Rounds
 
-On failure: `[ERROR] Debate Failed: {specific error message}`
+For each round (1 through N):
+
+**Build Proposer Prompt:**
+
+- **Round 1**: Use the "Round 1: Proposer Opening" template from the skill. Substitute {topic}.
+- **Round 2+**: Use the "Round 2+: Proposer Defense" template. Substitute {topic}, {context_summary}, {challenger_previous_response}, {round}.
+
+**Context assembly rules:**
+- **Rounds 1-2**: Include full text of all prior exchanges per the skill's context format.
+- **Round 3+**: Summarize rounds 1 through {round}-2 (target 500-800 tokens, preserving core positions, key evidence, all concessions as verbatim quotes, points of disagreement, and any contradictions between rounds). Include only the most recent round's responses in full.
+
+**Invoke Proposer via Consult Skill:**
+
+Only include `--model=[model_proposer]` if the user provided a specific model. If model is "omit", empty, or "auto", do NOT pass --model to the consult skill.
+
+```
+Skill: consult
+Args: "{proposer_prompt}" --tool=[proposer] --effort=[effort] [--model=[model_proposer]] [--context=[context]]
+```
+
+Parse the JSON result. Extract the response text. Record: round, role="proposer", tool, response, duration_ms.
+
+If the proposer call fails on round 1, abort: `[ERROR] Debate aborted: proposer ({tool}) failed on opening round. {error}`
+If the proposer call fails on round 2+, skip remaining rounds and proceed to Phase 3c (synthesize from completed rounds, note the early stop).
+
+Display to user immediately:
+```
+--- Round {round}: {proposer_tool} (Proposer) ---
+
+{proposer_response}
+```
+
+**Build Challenger Prompt:**
+
+- **Round 1**: Use the "Round 1: Challenger Response" template from the skill. Substitute {topic}, {proposer_tool}, {proposer_round1_response}.
+- **Round 2+**: Use the "Round 2+: Challenger Follow-up" template. Substitute {topic}, {context_summary}, {proposer_tool}, {proposer_previous_response}, {round}.
+
+**Invoke Challenger via Consult Skill:**
+
+Only include `--model=[model_challenger]` if the user provided a specific model. If model is "omit", empty, or "auto", do NOT pass --model to the consult skill.
+
+```
+Skill: consult
+Args: "{challenger_prompt}" --tool=[challenger] --effort=[effort] [--model=[model_challenger]] [--context=[context]]
+```
+
+Parse the JSON result. Record: round, role="challenger", tool, response, duration_ms.
+
+If the challenger call fails on round 1, emit `[WARN] Challenger ({tool}) failed on round 1. Proceeding with uncontested proposer position.` then proceed to Phase 3c.
+If the challenger call fails on round 2+, skip remaining rounds and proceed to Phase 3c.
+
+Display to user immediately:
+```
+--- Round {round}: {challenger_tool} (Challenger) ---
+
+{challenger_response}
+```
+
+Assemble context for the next round using the context assembly rules above.
+
+#### Phase 3c: Synthesize and Deliver Verdict
+
+After all rounds complete (or after a partial failure), YOU are the JUDGE. Read all exchanges carefully. Use the synthesis format from the debate skill:
+
+1. **Pick a winner.** Which tool made the stronger argument overall? Why? Cite 2-3 specific arguments that were decisive.
+2. **List agreements.** What did both tools agree on? Include evidence that supports each agreement.
+3. **List disagreements.** Where do they still diverge? What's each side's position?
+4. **List unresolved questions.** What did neither side address adequately?
+5. **Make a recommendation.** What should the user DO? Be specific and actionable.
+
+**Verdict rules (from the debate skill):**
+- You MUST pick a side. "Both approaches have merit" is NOT acceptable.
+- Cite specific arguments from the debate as evidence.
+- The recommendation must be actionable.
+- Be honest about what wasn't resolved.
+
+Display the full synthesis using the format from the debate skill's Synthesis Format section.
+
+#### Phase 3d: Save State
+
+Write the debate state to `{AI_STATE_DIR}/debate/last-debate.json` using the schema from the debate skill.
+
+Platform state directory: use the AI_STATE_DIR environment variable if set. Otherwise:
+- Claude Code: `.claude/`
+- OpenCode: `.opencode/`
+- Codex CLI: `.codex/`
+
+Create the `debate/` subdirectory if it doesn't exist.
+
+## Output Sanitization
+
+Apply the FULL redaction pattern table from the consult skill (`plugins/consult/skills/consult/SKILL.md`, Output Sanitization section). The skill is the canonical source with all 14 patterns. Do NOT maintain a separate subset here.
+
+The consult skill's table covers: Anthropic keys (`sk-*`, `sk-ant-*`), OpenAI project keys (`sk-proj-*`), Google keys (`AIza*`), GitHub tokens (`ghp_*`, `gho_*`, `github_pat_*`), AWS keys (`AKIA*`, `ASIA*`), env assignments (`ANTHROPIC_API_KEY=*`, `OPENAI_API_KEY=*`, `GOOGLE_API_KEY=*`, `GEMINI_API_KEY=*`), and auth headers (`Bearer *`).
+
+Read the consult skill file to get the exact patterns and replacements.
 
 ## Error Handling
 
@@ -201,7 +283,9 @@ On failure: `[ERROR] Debate Failed: {specific error message}`
 | Same tool for both | `[ERROR] Proposer and challenger must be different tools.` |
 | Rounds out of range | `[ERROR] Rounds must be 1-5. Got: {rounds}` |
 | Context file not found | `[ERROR] Context file not found: {PATH}` |
-| Orchestrator fails | `[ERROR] Debate failed: {error}` |
+| Proposer fails round 1 | `[ERROR] Debate aborted: proposer ({tool}) failed on opening round. {error}` |
+| Challenger fails round 1 | `[WARN] Challenger ({tool}) failed on round 1. Proceeding with uncontested proposer position.` Then synthesize from available exchanges. |
+| Any tool fails mid-debate | Synthesize from completed rounds. Note the incomplete round in output. |
 
 ## Example Usage
 
