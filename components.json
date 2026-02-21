@@ -1,0 +1,23 @@
+{
+  "agents": [
+    "perf-analyzer",
+    "perf-code-paths",
+    "perf-investigation-logger",
+    "perf-orchestrator",
+    "perf-theory-gatherer",
+    "perf-theory-tester"
+  ],
+  "skills": [
+    "perf-analyzer",
+    "perf-baseline-manager",
+    "perf-benchmarker",
+    "perf-code-paths",
+    "perf-investigation-logger",
+    "perf-profiler",
+    "perf-theory-gatherer",
+    "perf-theory-tester"
+  ],
+  "commands": [
+    "perf"
+  ]
+}
