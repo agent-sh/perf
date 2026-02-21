@@ -1,0 +1,22 @@
+{
+  "name": "perf",
+  "description": "Rigorous performance investigation workflow with baselines, profiling, hypotheses, and evidence-backed decisions",
+  "version": "1.0.0",
+  "owner": {
+    "name": "Avi Fenesh",
+    "url": "https://github.com/avifenesh"
+  },
+  "repository": "https://github.com/agent-sh/perf",
+  "keywords": [
+    "perf"
+  ],
+  "plugins": [
+    {
+      "name": "perf",
+      "source": ".",
+      "description": "Rigorous performance investigation workflow with baselines, profiling, hypotheses, and evidence-backed decisions",
+      "version": "1.0.0",
+      "category": "development"
+    }
+  ]
+}

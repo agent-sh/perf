@@ -1,0 +1,23 @@
+{
+  "name": "@agentsys/perf",
+  "version": "1.0.0",
+  "description": "Rigorous performance investigation workflow with baselines, profiling, and evidence-backed decisions",
+  "author": {
+    "name": "Avi Fenesh",
+    "email": "[email protected]",
+    "url": "https://github.com/avifenesh"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agent-sh/perf.git"
+  },
+  "homepage": "https://github.com/agent-sh/perf",
+  "keywords": [
+    "performance",
+    "benchmarks",
+    "profiling",
+    "optimization",
+    "baseline"
+  ]
+}
