@@ -207,6 +207,10 @@ async function runPhase() {
         }
       } catch (e) { /* repo-intel unavailable */ }
 
+      if (repoIntelContext) {
+        console.log(repoIntelContext);
+      }
+
       state = investigationState.updateInvestigation({ phase: 'baseline', repoIntelContext }, cwd);
       investigationState.appendSetupLog({
         id: state.id,
