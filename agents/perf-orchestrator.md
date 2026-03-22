@@ -66,7 +66,7 @@ Always update the investigation state and log after every phase.
 3. **Breaking Point**: Binary search with 30s runs to find failure threshold.
 4. **Constraints**: Run CPU/memory constrained benchmarks; compare to baseline.
 5. **Hypotheses**: Call `perf-theory-gatherer` (git history first).
-6. **Code Paths**: Identify hotspots via repo-map or grep; document.
+6. **Code Paths**: Identify hotspots via repo-intel or grep; document.
 7. **Profiling**: Run profiler skill; capture evidence and file:line hotspots. Prefer built-in runtime tools (Node `--cpu-prof`, Java JFR, Python cProfile, Go pprof, Rust perf).
 8. **Optimization**: Apply one change per experiment, validate with 2+ runs.
 9. **Decision**: If no meaningful improvement, document and recommend pause/stop.
