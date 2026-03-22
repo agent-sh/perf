@@ -192,7 +192,22 @@ async function runPhase() {
   }
   switch (phase) {
     case 'setup': {
-      state = investigationState.updateInvestigation({ phase: 'baseline' }, cwd);
+      // Pre-fetch repo-intel painspots to surface hot+complex+buggy files for the investigator
+      let repoIntelContext = '';
+      try {
+        const { binary } = require('@agentsys/lib');
+        const stateDir = ['.claude', '.opencode', '.codex'].find(d => fs.existsSync(path.join(cwd, d))) || '.claude';
+        const mapFile = path.join(cwd, stateDir, 'repo-intel.json');
+        if (fs.existsSync(mapFile)) {
+          const ps = JSON.parse(binary.runAnalyzer(['repo-intel', 'query', 'painspots', '--top', '5', '--map-file', mapFile, cwd]));
+          if (ps.length > 0) {
+            repoIntelContext = '\n\nTop pain spots (hotspot × complexity × bug density - likely investigation targets):\n' +
+              ps.map(p => `- ${p.path}: pain=${p.painScore?.toFixed(2)}, complexity=${p.complexityMax}, bugRate=${p.bugFixRate?.toFixed(2)}`).join('\n');
+          }
+        }
+      } catch (e) { /* repo-intel unavailable */ }
+
+      state = investigationState.updateInvestigation({ phase: 'baseline', repoIntelContext }, cwd);
       investigationState.appendSetupLog({
         id: state.id,
         userQuote,

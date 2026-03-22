@@ -13,8 +13,9 @@ Follow `docs/perf-requirements.md` as the canonical contract.
 ## Required Steps
 
 1. Review recent git history (scope to relevant paths when possible).
-2. Identify code paths involved in the scenario (repo-map or grep).
-3. Produce up to 5 hypotheses with evidence + confidence.
+2. Check investigation state for `repoIntelContext` (pain spots pre-fetched during setup). If present, use these as high-priority hypothesis seeds.
+3. Identify code paths involved in the scenario (repo-map or grep).
+4. Produce up to 5 hypotheses with evidence + confidence.
 
 ## Output Format
 
