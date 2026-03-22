@@ -196,16 +196,19 @@ async function runPhase() {
       let repoIntelContext = '';
       try {
         const { binary } = require('@agentsys/lib');
-        const stateDir = ['.claude', '.opencode', '.codex'].find(d => fs.existsSync(path.join(cwd, d))) || '.claude';
+        const { STATE_DIRS } = require('@agentsys/lib/cross-platform');
+        const stateDirNames = Object.values(STATE_DIRS);
+        const stateDir = stateDirNames.find(d => fs.existsSync(path.join(cwd, d))) || stateDirNames[0];
         const mapFile = path.join(cwd, stateDir, 'repo-intel.json');
         if (fs.existsSync(mapFile)) {
-          const ps = JSON.parse(binary.runAnalyzer(['repo-intel', 'query', 'painspots', '--top', '5', '--map-file', mapFile, cwd]));
+          const psOutput = await binary.runAnalyzerAsync(['repo-intel', 'query', 'painspots', '--top', '5', '--map-file', mapFile, cwd]);
+          const ps = JSON.parse(psOutput);
           if (ps.length > 0) {
             repoIntelContext = '\n\nTop pain spots (hotspot × complexity × bug density - likely investigation targets):\n' +
               ps.map(p => `- ${p.path}: pain=${p.painScore?.toFixed(2)}, complexity=${p.complexityMax}, bugRate=${p.bugFixRate?.toFixed(2)}`).join('\n');
           }
         }
-      } catch (e) { /* repo-intel unavailable */ }
+      } catch (e) { console.warn(`[WARN] Could not fetch repo-intel painspots: ${e.message}`); }
 
       if (repoIntelContext) {
         console.log(repoIntelContext);
