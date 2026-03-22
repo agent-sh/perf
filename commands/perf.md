@@ -355,7 +355,7 @@ async function runPhase() {
     case 'code-paths': {
       const mapStatus = repoMap.status(cwd);
       if (!mapStatus.exists) {
-        console.log('Repo map not found. Run /repo-map init for better code-path coverage.');
+        console.log('Repo map not found. Run /repo-intel init for better code-path coverage.');
       }
       const repoMapStatus = mapStatus.exists
         ? `available (files=${mapStatus.status?.files ?? 'n/a'}, symbols=${mapStatus.status?.symbols ?? 'n/a'})`
