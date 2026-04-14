@@ -8,6 +8,7 @@
     "url": "https://github.com/avifenesh"
   },
   "license": "MIT",
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/agent-sh/perf.git"
@@ -19,5 +20,9 @@
     "profiling",
     "optimization",
     "baseline"
-  ]
+  ],
+  "scripts": {
+    "test": "node -e \"require('./lib')\"",
+    "validate": "node -e \"require('./lib')\""
+  }
 }
