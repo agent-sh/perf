@@ -50,7 +50,7 @@ Every investigation follows 10 phases in order. The orchestrator enforces strict
 
 5. **Hypotheses** - Generate up to 5 hypotheses about the root cause, each backed by evidence from git history and code analysis. No guessing - every hypothesis needs a file path or commit reference.
 
-6. **Code paths** - Use repo-map to identify entry points, hot files, and call chains relevant to the scenario. Narrows the search space before profiling.
+6. **Code paths** - Use repo-intel to identify entry points, hot files, and call chains relevant to the scenario. Narrows the search space before profiling.
 
 7. **Profiling** - Run language-specific profilers: `--cpu-prof` for Node.js, JFR for Java, cProfile for Python, pprof for Go. Capture file:line hotspots and flame graphs.
 
@@ -102,6 +102,11 @@ State is persisted under `{state-dir}/perf/`: `investigation.json` (active state
 | `perf-baseline-manager` | skill | - | Baseline storage, one JSON per version |
 | `perf-benchmarker` | skill | - | Sequential benchmark execution |
 | `perf-profiler` | skill | - | Language-specific profiling (CPU, memory, flame graphs) |
+| `perf-analyzer` | skill | - | Synthesis patterns and recommendation templates |
+| `perf-code-paths` | skill | - | Entry-point and hot-file identification patterns |
+| `perf-investigation-logger` | skill | - | Structured evidence log formatting |
+| `perf-theory-gatherer` | skill | - | Hypothesis generation backed by git/code evidence |
+| `perf-theory-tester` | skill | - | Controlled experiment execution patterns |
 
 ## Requirements
 
@@ -111,8 +116,7 @@ State is persisted under `{state-dir}/perf/`: `investigation.json` (active state
 
 ## Related Plugins
 
-- [repo-map](https://github.com/agent-sh/repo-map) - AST-based repository map used during the code-paths phase
-- [git-map](https://github.com/agent-sh/git-map) - Git history analysis for identifying recent changes that may correlate with regressions
+- [repo-intel](https://github.com/agent-sh/repo-intel) - Unified static analysis: AST symbols, git history, and doc-code sync, used during the code-paths phase
 - [enhance](https://github.com/agent-sh/enhance) - Code analysis that can complement perf findings
 
 ## License
