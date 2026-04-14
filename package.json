@@ -19,5 +19,9 @@
     "profiling",
     "optimization",
     "baseline"
-  ]
+  ],
+  "scripts": {
+    "test": "node -e \"require('./lib')\"",
+    "validate": "node -e \"require('./lib')\""
+  }
 }
