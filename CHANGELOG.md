@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-24
+
+### Changed
+
+- The `/perf` phase handler moved out of the command prompt into `scripts/perf-phase.js`. The command was a 1,800-word JavaScript program the model had to execute by hand; as written it could not run (missing `path` import, a top-level `await`, and `@agentsys/lib` imports that only resolve when that package is installed). The script runs one phase per call with the same flags, state files and log format.
+- Rewrote the command, agent, skill and hook-doc prompts for current models: goal, rules with their reasons, and output contracts instead of "MUST" lists repeated in every file. The rules are stated once in the command. Every prompt pointed at `docs/perf-requirements.md` as the canonical contract, but that file does not exist in this repo; those references are gone. Prompt size went from 4,682 to 3,138 words.
+- Model pins: the orchestrator, theory gatherer, theory tester and analyzer inherit the session model instead of pinning opus. The code-paths agent stays on sonnet, and the logger moves to haiku.
+- The orchestrator agent no longer lists `Task`, which a subagent cannot use. It runs the perf skills inline and returns `blocked` with the question when a phase needs the user.
+
+### Fixed
+
+- Checkpoint commits no longer risk committing the user's unrelated work. `lib/perf/checkpoint.js` falls back to `git add -A` when the perf state dir cannot be staged, for example when it is gitignored. The phase script now checkpoints only when every pending change is under `<stateDir>/perf/`, and otherwise skips with a message.
+- The theory tester stops instead of stashing when the tree is not clean, since uncommitted changes are the user's work.
+
+### Added
+
+- `tests/perf-phase.test.js`: setup and baseline in a temporary git repo, the checkpoint-skip guard, and missing-input errors. `npm test` runs it.
+
 ## [1.0.1] - 2026-04-26
 
 ### Fixed

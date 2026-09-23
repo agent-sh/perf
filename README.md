@@ -28,7 +28,7 @@ Requires [agentsys](https://github.com/agent-sh/agentsys) to be set up in your p
 /perf --phase setup --scenario "API response time regression" --command "npm run bench" --version v1.2.0
 ```
 
-This initializes an investigation, records the scenario, and prepares for baselining. The orchestrator walks you through each phase sequentially, checkpointing progress after every step.
+This initializes an investigation, records the scenario, and prepares for baselining. `/perf` then moves phase to phase while it has the inputs it needs, and stops to ask when a phase needs you. Each phase runs through `scripts/perf-phase.js`, which records results and commits a checkpoint when the only pending changes are perf state.
 
 To resume an in-progress investigation:
 
@@ -38,7 +38,7 @@ To resume an in-progress investigation:
 
 ## How It Works
 
-Every investigation follows 10 phases in order. The orchestrator enforces strict rules: sequential benchmarks only, 60-second minimum run durations, one change per experiment, and checkpoint commits after each phase.
+Every investigation follows 10 phases in order. The rules exist to keep the numbers trustworthy: sequential benchmarks only, 60-second runs by default, one change per experiment, and a checkpoint commit after each phase. Checkpoints never include your unrelated changes; if the tree has any, the checkpoint is skipped.
 
 1. **Setup** - Confirm the scenario, success criteria, and benchmark command. The benchmark must emit metrics between `PERF_METRICS_START` / `PERF_METRICS_END` markers.
 
@@ -93,12 +93,12 @@ State is persisted under `{state-dir}/perf/`: `investigation.json` (active state
 
 | Component | Type | Model | Role |
 |-----------|------|-------|------|
-| `perf-orchestrator` | agent | opus | Coordinates all phases, enforces rules |
-| `perf-theory-gatherer` | agent | sonnet | Generates hypotheses from git history and code |
-| `perf-theory-tester` | agent | sonnet | Runs controlled experiments for hypotheses |
-| `perf-analyzer` | agent | sonnet | Synthesizes findings into recommendations |
+| `perf-orchestrator` | agent | inherits | Runs a whole investigation as a subagent |
+| `perf-theory-gatherer` | agent | inherits | Generates hypotheses from git history and code |
+| `perf-theory-tester` | agent | inherits | Runs controlled experiments for hypotheses |
+| `perf-analyzer` | agent | inherits | Synthesizes findings into recommendations |
 | `perf-code-paths` | agent | sonnet | Identifies hot files and entry points |
-| `perf-investigation-logger` | agent | sonnet | Writes structured evidence log entries |
+| `perf-investigation-logger` | agent | haiku | Writes structured evidence log entries |
 | `perf-baseline-manager` | skill | - | Baseline storage, one JSON per version |
 | `perf-benchmarker` | skill | - | Sequential benchmark execution |
 | `perf-profiler` | skill | - | Language-specific profiling (CPU, memory, flame graphs) |

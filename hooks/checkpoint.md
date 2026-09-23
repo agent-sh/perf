@@ -1,35 +1,14 @@
 ---
 name: perf-checkpoint
-description: Create a checkpoint commit and update the investigation log after each phase.
+description: Commit /perf investigation state after each phase, and only that state.
 ---
 
-# Perf Checkpoint Hook
+# Perf Checkpoint
 
-Create a checkpoint commit and update `{state-dir}/perf/investigations/<id>.md` after each phase.
+After each phase, commit the investigation state so an interrupted investigation can resume and every result has a commit to point at. `scripts/perf-phase.js` does this automatically through `lib/perf/checkpoint.js`.
 
-Follow `docs/perf-requirements.md` as the canonical contract.
+Commit message: `perf: phase <phase-name> [<id>] baseline=<version> delta=<summary>`
 
-## Commit Message Format
-
-```
-perf: phase <phase-name> [<id>] baseline=<version> delta=<summary>
-```
-
-## Required Steps
-
-1. Ensure working tree is clean aside from intended changes.
-2. Update investigation log with phase summary and evidence.
-3. Commit with the format above.
-
-## Exit Codes
-
-| Code | Meaning |
-|------|---------|
-| 0 | Checkpoint created successfully |
-| 1 | Failed to create checkpoint (git error, dirty state) |
-| 2 | Blocked - benchmarks still running |
-
-## Constraints
-
-- No checkpoint if benchmarks are still running (exit 2).
-- Do not batch multiple phases into one commit.
+- One commit per phase. Batching phases loses the point at which each result was recorded.
+- Only perf state goes in the commit (`<stateDir>/perf/`). If anything else in the tree has changed, skip the checkpoint and say so: the other changes are the user's work, or an experiment that should have been reverted.
+- No checkpoint while a benchmark is still running.

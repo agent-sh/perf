@@ -1,29 +1,13 @@
 ---
 name: perf-constraint-tester
-description: Apply CPU/memory constraints and compare results to baseline.
+description: Run the /perf benchmark under CPU and memory limits and compare it with the unconstrained baseline.
 ---
 
-# Perf Constraint Tester Hook
+# Perf Constraint Tester
 
-Apply resource constraints and run the same benchmark sequentially.
+Show how the scenario behaves with less CPU or memory, to separate resource-bound problems from algorithmic ones. `lib/perf/constraint-runner.js` (`runConstraintTest`) runs the same benchmark unconstrained and constrained, one after the other, and reports the delta. The limits reach the benchmark as `PERF_CPU_LIMIT` and `PERF_MEMORY_LIMIT`.
 
-Follow `docs/perf-requirements.md` as the canonical contract.
-
-## Required Steps
-
-1. Set CPU limit and/or memory limit (document exact values).
-2. Run baseline benchmark (60s minimum).
-3. Run constrained benchmark (60s minimum).
-4. Compare metrics and record deltas.
-
-Constraints should be exposed to the benchmark via env vars:
-
-```
-PERF_CPU_LIMIT
-PERF_MEMORY_LIMIT
-```
-
-## Output Format
+Record the exact limits used. Run the two benchmarks sequentially, never together, and remove the limits afterwards.
 
 ```
 constraints:
@@ -33,8 +17,3 @@ baseline: <metrics>
 constrained: <metrics>
 delta: <summary>
 ```
-
-## Constraints
-
-- Do not run constraints in parallel.
-- Revert to unconstrained state afterward.

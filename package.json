@@ -1,6 +1,6 @@
 {
   "name": "@agentsys/perf",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Rigorous performance investigation workflow with baselines, profiling, and evidence-backed decisions",
   "author": {
     "name": "Avi Fenesh",
@@ -22,7 +22,7 @@
     "baseline"
   ],
   "scripts": {
-    "test": "node -e \"require('./lib')\"",
+    "test": "node -e \"require('./lib')\" && node --test tests/*.test.js",
     "validate": "node -e \"require('./lib')\""
   }
 }
