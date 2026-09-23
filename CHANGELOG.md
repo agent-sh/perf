@@ -7,7 +7,7 @@
 ### Changed
 
 - The `/perf` phase handler moved out of the command prompt into `scripts/perf-phase.js`. The command was a 1,800-word JavaScript program the model had to execute by hand; as written it could not run (missing `path` import, a top-level `await`, and `@agentsys/lib` imports that only resolve when that package is installed). The script runs one phase per call with the same flags, state files and log format.
-- Rewrote the command, agent, skill and hook-doc prompts for current models: goal, rules with their reasons, and output contracts instead of "MUST" lists repeated in every file. The rules are stated once in the command. Every prompt pointed at `docs/perf-requirements.md` as the canonical contract, but that file does not exist in this repo; those references are gone. Prompt size went from 4,682 to 3,138 words.
+- Rewrote the command, agent, skill and hook-doc prompts for current models: goal, rules with their reasons, and output contracts instead of "MUST" lists repeated in every file. The rules are stated once in the command. Every prompt pointed at `docs/perf-requirements.md` as the canonical contract, but that file does not exist in this repo; those references are gone. Prompt size went from 4,682 to 3,276 words.
 - Model pins: the orchestrator, theory gatherer, theory tester and analyzer inherit the session model instead of pinning opus. The code-paths agent stays on sonnet, and the logger moves to haiku.
 - The orchestrator agent no longer lists `Task`, which a subagent cannot use. It runs the perf skills inline and returns `blocked` with the question when a phase needs the user.
 
