@@ -30,7 +30,7 @@ Each phase is deterministic, so a script runs it:
 node "${CLAUDE_PLUGIN_ROOT}/scripts/perf-phase.js" "<the /perf arguments>"
 ```
 
-It creates or resumes the investigation, runs the phase with the runners in `lib/perf/`, stores results in `<stateDir>/perf/` (`investigation.json`, `investigations/<id>.md`, `baselines/<version>.json`), advances to the next phase, and makes a checkpoint commit when the only pending changes are perf state. It prints the phase results as JSON and the next phase. A failure prints `[ERROR]` with the missing flag or the runner's error.
+The first call creates the investigation. Every later call passes `--resume` (plus `--phase` only to jump): without it the script refuses to touch an investigation in progress, so it never starts over by accident. It runs the phase with the runners in `lib/perf/`, stores results in `<stateDir>/perf/` (`investigation.json`, `investigations/<id>.md`, `baselines/<version>.json`), advances to the next phase, and makes a checkpoint commit when the only pending changes are perf state. It prints the phase results as JSON and the next phase. A failure prints `[ERROR]` with the missing flag or the runner's error.
 
 Your part is the judgment between phases: clarify the scenario, pick the next phase's inputs, interpret results, and talk to the user. Keep going from phase to phase while you have what the next one needs. Stop and ask when it needs the user: a missing scenario or command, a scope expansion, or the continue/stop decision.
 
@@ -43,7 +43,7 @@ Your part is the judgment between phases: clarify the scenario, pick the next ph
 5. **hypotheses**: spawn `perf:perf-theory-gatherer` with the scenario, baseline, breaking point and constraint deltas. Write its hypotheses to `<stateDir>/perf/hypotheses-<id>.json` and run the phase with `--hypotheses-file` pointing at it.
 6. **code-paths**: the script maps scenario keywords to files through the repo map. For more depth, spawn `perf:perf-code-paths`.
 7. **profiling**: the script picks the runtime's profiler. For a different tool or a closer look at hotspots, use the `perf-profiler` skill.
-8. **optimization**: spawn `perf:perf-theory-tester` to apply one change for the strongest hypothesis, then run the phase with `--change "<summary>"`. The tester reverts the change afterwards. Repeat per hypothesis worth testing.
+8. **optimization**: spawn `perf:perf-theory-tester` to apply one change for the strongest hypothesis, gated so it only takes effect when `PERF_EXPERIMENT=1`. Then run the phase with `PERF_ALLOW_DIRTY=1` and `--change "<summary>"`: the runner benchmarks `PERF_EXPERIMENT=0` against `PERF_EXPERIMENT=1` on the same tree, so the gate is what makes the two arms differ. The tester reverts the change afterwards. A change that cannot be gated (a dependency bump, a build flag) is measured by the tester itself, and its result goes in the log instead. Repeat per hypothesis worth testing.
 9. **decision**: spawn `perf:perf-analyzer` to synthesize the evidence, present its recommendation, and ask the user to continue or stop. Run the phase with `--verdict` and `--rationale`.
 10. **consolidation**: writes the final baseline for the version and marks the investigation complete.
 

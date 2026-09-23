@@ -15,6 +15,8 @@
 
 - Checkpoint commits no longer risk committing the user's unrelated work. `lib/perf/checkpoint.js` falls back to `git add -A` when the perf state dir cannot be staged, for example when it is gitignored. The phase script now checkpoints only when every pending change is under `<stateDir>/perf/`, and otherwise skips with a message.
 - The theory tester stops instead of stashing when the tree is not clean, since uncommitted changes are the user's work.
+- A call without `--resume` no longer silently replaces an investigation in progress. The script refuses and points at `--resume` or `--id <new-id>`, because the model now chains phases and a missing flag would have wiped the collected results.
+- The optimization phase measures the change. The tester gates it behind `PERF_EXPERIMENT=1`, and the phase runs with `PERF_ALLOW_DIRTY=1`. The runner compares `PERF_EXPERIMENT=0` against `=1` on one tree, so a change reverted before the phase ran would have been benchmarked against itself.
 
 ### Added
 

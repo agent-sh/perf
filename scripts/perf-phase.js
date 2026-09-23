@@ -96,6 +96,9 @@ async function main() {
     if (!state) fail('No active investigation found. Run /perf without --resume first.');
     if (options.phase) state = investigationState.updateInvestigation({ phase: options.phase }, cwd);
   } else {
+    if (state && state.phase !== 'complete' && !options.id) {
+      fail(`Investigation ${state.id} is in progress (phase: ${state.phase}). Continue it with --resume, or pass --id <new-id> to start a new one.`);
+    }
     state = investigationState.initializeInvestigation({ id: options.id, phase: options.phase, scenario: options.scenario }, cwd);
   }
 

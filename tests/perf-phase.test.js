@@ -61,6 +61,19 @@ test('checkpoint is skipped when the user has unrelated changes', () => {
   }
 });
 
+test('a second call without --resume does not reset an investigation in progress', () => {
+  const dir = makeRepo();
+  try {
+    run(dir, '--phase setup --scenario "smoke" --command "sh bench.sh" --version v0 --runs 2');
+    const before = fs.readFileSync(path.join(dir, '.claude', 'perf', 'investigation.json'), 'utf8');
+    assert.throws(() => run(dir, '--phase decision --verdict stop --rationale "no gain"'), /in progress.*--resume/);
+    const after = fs.readFileSync(path.join(dir, '.claude', 'perf', 'investigation.json'), 'utf8');
+    assert.equal(after, before);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('missing required inputs fail with the flag names', () => {
   const dir = makeRepo();
   try {
