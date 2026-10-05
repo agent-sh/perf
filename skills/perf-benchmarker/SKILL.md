@@ -13,7 +13,7 @@ The command prints its metrics as JSON between `PERF_METRICS_START` and `PERF_ME
 
 ## Constraints
 
-- One benchmark at a time, never in parallel: concurrent runs compete for the same CPU, memory and caches.
+- One benchmark at a time, not in parallel: concurrent runs compete for the same CPU, memory and caches.
 - 60s per run by default, 30s inside a breaking-point search. For start-to-end benchmarks, run several one-shot executions (`runs`) and aggregate with the median. Shorter runs only for micro-benchmarks, and say so.
 - Warm up (10s or the benchmark's own warmup) before measuring.
 - Do not change code while benchmarking.
