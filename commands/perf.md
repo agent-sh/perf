@@ -51,7 +51,7 @@ Without a `Task` tool, follow each agent's skill inline (`perf-theory-gatherer`,
 
 ## Rules
 
-- Run benchmarks one at a time, never in parallel. Concurrent runs compete for CPU, memory and cache, and the numbers stop meaning anything.
+- Run benchmarks one at a time, not in parallel. Concurrent runs compete for CPU, memory and cache, and the numbers stop meaning anything.
 - Keep the default durations: 60s per run, 30s inside the breaking-point search. Short runs are noise-dominated. Use `--runs` for start-to-end benchmarks, and go shorter only for micro-benchmarks, saying so in the log.
 - One change per experiment, reverted before the next. Two changes at once make the delta unattributable.
 - Re-run a result that looks anomalous before building on it, and report variance, not only the aggregate.
