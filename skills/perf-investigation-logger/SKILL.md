@@ -1,7 +1,7 @@
 ---
 name: perf-investigation-logger
 description: "Use when appending a structured entry to a /perf investigation log: user quotes, phase summary, evidence, decisions."
-version: 5.2.0
+version: 5.3.0
 ---
 
 # perf-investigation-logger
