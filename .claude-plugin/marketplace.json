@@ -1,7 +1,7 @@
 {
   "name": "perf",
   "description": "Rigorous performance investigation workflow with baselines, profiling, hypotheses, and evidence-backed decisions",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "owner": {
     "name": "Avi Fenesh",
     "url": "https://github.com/avifenesh"
@@ -15,7 +15,7 @@
       "name": "perf",
       "source": ".",
       "description": "Rigorous performance investigation workflow with baselines, profiling, hypotheses, and evidence-backed decisions",
-      "version": "1.0.0",
+      "version": "1.2.0",
       "category": "development"
     }
   ]

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-06
+
 ### Changed
 
 - AGENTS.md drops the generic model table and the GPU validation text this CPU-only repo does not need, and gains an Overview (which says `lib/`, including `lib/perf/`, is synced from agent-core) and the agnix lint command. The three "never in parallel" lines in the prompts read as plain rules with their reasons. The command, agent, skill, hook-doc and AGENTS.md files went from 3,659 to 3,642 words; the prompts were already at the target from 1.1.0.

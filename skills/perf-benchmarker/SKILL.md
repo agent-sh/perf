@@ -1,7 +1,7 @@
 ---
 name: perf-benchmarker
 description: "Use when running performance benchmarks, establishing baselines, or validating a regression with sequential runs. Keeps runs sequential and long enough to trust."
-version: 5.2.0
+version: 5.3.0
 argument-hint: "[command] [duration]"
 ---
 
